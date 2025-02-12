@@ -5,11 +5,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Papa from "papaparse"
 import { processData } from "@/lib/dataProcessing"
-import DataVisualization from "@/components/DataVisualization"
+import ProcessedDataTable from "@/components/ProcessedDataTable"
+import KeyMetrics from "@/components/KeyMetrics"
+import { calculateTotalSales, calculateAverageSales, generateRecommendations } from "@/lib/dataProcessing"
 
 export default function FileUpload() {
   const [file, setFile] = useState<File | null>(null)
-  const [data, setData] = useState<any[] | null>(null)
+  const [data, setData] = useState<any[]>([])
+  const [totalSales, setTotalSales] = useState<number>(0)
+  const [averageSalesPerDay, setAverageSalesPerDay] = useState<number>(0)
+  const [recommendations, setRecommendations] = useState<string[]>([])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -23,8 +28,17 @@ export default function FileUpload() {
 
     Papa.parse(file, {
       complete: (result) => {
+        console.log("Parsed Data:", result.data)
         const processedData = processData(result.data)
+        console.log("Processed Data:", processedData)
         setData(processedData)
+        const totalSales = calculateTotalSales(processedData)
+        const averageSalesPerDay = calculateAverageSales(processedData)
+        const recommendations = generateRecommendations(processedData)
+
+        setTotalSales(totalSales)
+        setAverageSalesPerDay(averageSalesPerDay)
+        setRecommendations(recommendations)
       },
       header: true,
     })
@@ -38,8 +52,12 @@ export default function FileUpload() {
           Upload and Process CSV
         </Button>
       </form>
-      {data && <DataVisualization data={data} />}
+      {data.length > 0 && (
+        <>
+          <ProcessedDataTable data={data} />
+          <KeyMetrics totalSales={totalSales} averageSalesPerDay={averageSalesPerDay} recommendations={recommendations} />
+        </>
+      )}
     </div>
   )
 }
-

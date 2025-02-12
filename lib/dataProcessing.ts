@@ -13,33 +13,24 @@ function isOutlier(value: number, mean: number, stdDev: number): boolean {
   return Math.abs(value - mean) > 2 * stdDev
 }
 
-export function processData(rawData: any[]): SalesData[] {
-  // Remove rows with missing or invalid data
-  const cleanedData = rawData.filter(row => 
-    row.date && isValidDate(row.date) && row.product && !isNaN(Number(row.sales))
-  )
+export function processData(rawData: any[]): any[] {
+  // Log the first row to see the data structure
+  console.log("First row of raw data:", rawData[0])
 
-  // Convert sales to numbers and handle missing values
-  const processedData = cleanedData.map(row => ({
-    date: row.date,
-    product: row.product,
-    sales: Number.parseFloat(row.sales) || 0,
-  }))
+  // Keep all columns from the data
+  const processedData = rawData.map(row => {
+    // Convert any numeric strings to numbers
+    const processedRow: any = {}
+    Object.entries(row).forEach(([key, value]) => {
+      const numValue = Number(value)
+      processedRow[key] = !isNaN(numValue) ? numValue : value
+    })
+    return processedRow
+  })
 
-  // Calculate mean and standard deviation for sales
-  const salesValues = processedData.map(row => row.sales)
-  let mean = 0
-  let stdDev = 0
+  console.log("First row of processed data:", processedData[0])
 
-  if (salesValues.length > 0) {
-    mean = salesValues.reduce((a, b) => a + b, 0) / salesValues.length
-    stdDev = Math.sqrt(salesValues.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / (salesValues.length - 1))
-  }
-
-  // Remove outliers
-  const finalData = processedData.filter(row => !isOutlier(row.sales, mean, stdDev))
-
-  return finalData
+  return processedData
 }
 
 export function calculateTotalSales(data: SalesData[]): number {
