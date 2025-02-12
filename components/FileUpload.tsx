@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import styles from "./styles/FileUpload.module.css"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Papa from "papaparse"
@@ -46,20 +47,21 @@ export default function FileUpload() {
   }
 
   return (
-    <div className="w-full max-w-4xl">
-      <form onSubmit={handleSubmit} className="space-y-4 mb-8">
+    <div className={styles.container}>
+      <form onSubmit={handleSubmit} className={styles.formGroup}>
         <Input type="file" accept=".csv" onChange={handleFileChange} />
         <Button type="submit" disabled={!file}>
           Upload and Process CSV
         </Button>
       </form>
       {data.length > 0 && (
-        <div className="grid grid-cols-2 gap-8">
-          <div>
+        <div className={styles.gridLayout}>
+          <div className={styles.leftColumn}>
+            <h1 className={styles.mainTitle}>Data Driven Strategy Bot</h1>
             <ProcessedDataTable data={data} />
             <KeyMetrics totalSales={totalSales} averageSalesPerDay={averageSalesPerDay} recommendations={recommendations} />
           </div>
-          <div className="sticky top-0">
+          <div className={styles.rightColumn}>
             <DataAnalysis data={data} />
           </div>
         </div>

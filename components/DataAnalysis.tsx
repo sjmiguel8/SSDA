@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import styles from "./styles/DataAnalysis.module.css"
 
 interface DataAnalysisProps {
   data: any[]
@@ -24,25 +25,6 @@ type AnalysisType =
 
 const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
   const [analysisType, setAnalysisType] = useState<AnalysisType>("descriptive")
-
-  const performAnalysis = () => {
-    switch (analysisType) {
-      case "descriptive":
-        return descriptiveAnalysis(data)
-      case "inferential":
-        return inferentialAnalysis(data)
-      case "diagnostic":
-        return diagnosticAnalysis(data)
-      case "predictive":
-        return predictiveAnalysis(data)
-      case "prescriptive":
-        return prescriptiveAnalysis(data)
-      case "exploratory":
-        return exploratoryAnalysis(data)
-      default:
-        return null
-    }
-  }
 
   const descriptiveAnalysis = (data: any[]) => {
     const numericColumns = Object.keys(data[0]).filter(key => 
@@ -71,17 +53,17 @@ const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
     })
 
     return (
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Descriptive Statistics</h3>
+      <div className={styles.analysisContainer}>
+        <h3 className={styles.sectionTitle}>Descriptive Statistics</h3>
         {stats
           .filter((stat): stat is NonNullable<typeof stat> => stat !== null)
           .map(stat => (
-            <Card key={stat.column}>
+            <Card key={stat.column} className={styles.analysisCard}>
               <CardHeader>
-                <CardTitle>{stat.column}</CardTitle>
+                <CardTitle className={styles.cardTitle}>{stat.column}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-2">
+                <div className={styles.cardGrid}>
                   <div>Mean: {stat.mean}</div>
                   <div>Median: {stat.median}</div>
                   <div>Max: {stat.max}</div>
@@ -90,13 +72,12 @@ const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
                 </div>
               </CardContent>
             </Card>
-        ))}
+          ))}
       </div>
     )
   }
 
   const inferentialAnalysis = (data: any[]) => {
-    // Perform t-test on numeric columns
     const numericColumns = Object.keys(data[0]).filter(key => 
       typeof data[0][key] === "number"
     )
@@ -104,6 +85,7 @@ const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
     const tTests = numericColumns.map(column => {
       const values = data.map(row => Number(row[column])).filter(val => !isNaN(val))
       if (values.length === 0) return null
+
       const mean = values.reduce((a, b) => a + b, 0) / values.length
       const squaredDiffs = values.map(x => Math.pow(x - mean, 2))
       const variance = squaredDiffs.reduce((a, b) => a + b) / values.length
@@ -123,41 +105,40 @@ const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
     })
 
     return (
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Inferential Analysis</h3>
+      <div className={styles.analysisContainer}>
+        <h3 className={styles.sectionTitle}>Inferential Analysis</h3>
         {tTests
           .filter((test): test is NonNullable<typeof test> => test !== null)
           .map(test => (
-          <Card key={test.column}>
-            <CardHeader>
-              <CardTitle>{test.column}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-2">
-                <div>Mean: {test.mean}</div>
-                <div>Std Error: {test.stdError}</div>
-                <div>T-Statistic: {test.tStat}</div>
-                <div>95% CI: [{test.confidenceInterval[0]}, {test.confidenceInterval[1]}]</div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+            <Card key={test.column} className={styles.analysisCard}>
+              <CardHeader>
+                <CardTitle className={styles.cardTitle}>{test.column}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className={styles.cardGrid}>
+                  <div>Mean: {test.mean}</div>
+                  <div>Std Error: {test.stdError}</div>
+                  <div>T-Statistic: {test.tStat}</div>
+                  <div>95% CI: [{test.confidenceInterval[0]}, {test.confidenceInterval[1]}]</div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
       </div>
     )
   }
 
   const diagnosticAnalysis = (data: any[]) => {
-    // Calculate correlations between numeric columns
     const numericColumns = Object.keys(data[0]).filter(key => 
       typeof data[0][key] === "number"
     )
 
     const correlations = numericColumns.map(col1 => {
       const correlationsWithOthers = numericColumns.map(col2 => {
-      const values1 = data.map(row => Number(row[col1])).filter(val => !isNaN(val))
-      const values2 = data.map(row => Number(row[col2])).filter(val => !isNaN(val))
-      if (values1.length === 0 || values2.length === 0) return null
-        
+        const values1 = data.map(row => Number(row[col1])).filter(val => !isNaN(val))
+        const values2 = data.map(row => Number(row[col2])).filter(val => !isNaN(val))
+        if (values1.length === 0 || values2.length === 0) return null
+
         const mean1 = values1.reduce((a, b) => a + b, 0) / values1.length
         const mean2 = values2.reduce((a, b) => a + b, 0) / values2.length
         
@@ -183,38 +164,34 @@ const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
 
       return {
         column: col1,
-        correlations: correlationsWithOthers
+        correlations: correlationsWithOthers.filter((c): c is NonNullable<typeof c> => c !== null)
       }
     })
 
     return (
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Diagnostic Analysis</h3>
-        {correlations.map(corr => {
-          const validCorrelations = corr.correlations.filter((c): c is NonNullable<typeof c> => c !== null)
-          return (
-            <Card key={corr.column}>
-              <CardHeader>
-                <CardTitle>Correlations with {corr.column}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-2">
-                  {validCorrelations.map(c => (
-                    <div key={c.column}>
-                      {c.column}: {c.correlation}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
+      <div className={styles.analysisContainer}>
+        <h3 className={styles.sectionTitle}>Diagnostic Analysis</h3>
+        {correlations.map(corr => (
+          <Card key={corr.column} className={styles.analysisCard}>
+            <CardHeader>
+              <CardTitle className={styles.cardTitle}>Correlations with {corr.column}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className={styles.cardGrid}>
+                {corr.correlations.map(c => (
+                  <div key={c.column}>
+                    {c.column}: {c.correlation}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     )
   }
 
   const predictiveAnalysis = (data: any[]) => {
-    // Simple trend analysis
     const numericColumns = Object.keys(data[0]).filter(key => 
       typeof data[0][key] === "number"
     )
@@ -222,10 +199,10 @@ const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
     const trends = numericColumns.map(column => {
       const values = data.map(row => Number(row[column])).filter(val => !isNaN(val))
       if (values.length === 0) return null
+
       const n = values.length
       const periods = Array.from({length: n}, (_, i) => i + 1)
       
-      // Calculate linear regression
       const sumX = periods.reduce((a, b) => a + b, 0)
       const sumY = values.reduce((a, b) => a + b, 0)
       const sumXY = periods.reduce((sum, x, i) => sum + x * values[i], 0)
@@ -234,7 +211,6 @@ const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
       const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX)
       const intercept = (sumY - slope * sumX) / n
       
-      // Predict next value
       const nextValue = slope * (n + 1) + intercept
 
       return {
@@ -246,17 +222,17 @@ const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
     })
 
     return (
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Predictive Analysis</h3>
+      <div className={styles.analysisContainer}>
+        <h3 className={styles.sectionTitle}>Predictive Analysis</h3>
         {trends
           .filter((trend): trend is NonNullable<typeof trend> => trend !== null)
           .map(trend => (
-            <Card key={trend.column}>
+            <Card key={trend.column} className={styles.analysisCard}>
               <CardHeader>
-                <CardTitle>{trend.column}</CardTitle>
+                <CardTitle className={styles.cardTitle}>{trend.column}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-2">
+                <div className={styles.cardGrid}>
                   <div>Trend: {trend.trend}</div>
                   <div>Rate of Change: {trend.slope}</div>
                   <div>Next Predicted Value: {trend.nextValue}</div>
@@ -276,6 +252,7 @@ const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
     const insights = numericColumns.map(column => {
       const values = data.map(row => Number(row[column])).filter(val => !isNaN(val))
       if (values.length === 0) return null
+
       const mean = values.reduce((a, b) => a + b, 0) / values.length
       const sortedValues = [...values].sort((a, b) => b - a)
       const topValues = sortedValues.slice(0, 3)
@@ -295,21 +272,21 @@ const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
     })
 
     return (
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Prescriptive Analysis</h3>
+      <div className={styles.analysisContainer}>
+        <h3 className={styles.sectionTitle}>Prescriptive Analysis</h3>
         {insights
           .filter((insight): insight is NonNullable<typeof insight> => insight !== null)
           .map(insight => (
-            <Card key={insight.column}>
+            <Card key={insight.column} className={styles.analysisCard}>
               <CardHeader>
-                <CardTitle>{insight.column}</CardTitle>
+                <CardTitle className={styles.cardTitle}>{insight.column}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 gap-2">
+                <div className={styles.cardGridSingle}>
                   <div>Average: {insight.mean}</div>
                   <div>Top 3 Values: {insight.topValues.join(", ")}</div>
                   <div>Bottom 3 Values: {insight.bottomValues.join(", ")}</div>
-                  <div className="font-semibold">Recommendation: {insight.recommendation}</div>
+                  <div className={styles.cardTitle}>Recommendation: {insight.recommendation}</div>
                 </div>
               </CardContent>
             </Card>
@@ -320,6 +297,7 @@ const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
 
   const exploratoryAnalysis = (data: any[]) => {
     const columns = Object.keys(data[0])
+    
     interface BaseStats {
       column: string;
       type: string;
@@ -366,15 +344,15 @@ const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
     })
 
     return (
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Exploratory Data Analysis</h3>
+      <div className={styles.analysisContainer}>
+        <h3 className={styles.sectionTitle}>Exploratory Data Analysis</h3>
         {summary.map(stats => (
-          <Card key={stats.column}>
+          <Card key={stats.column} className={styles.analysisCard}>
             <CardHeader>
-              <CardTitle>{stats.column}</CardTitle>
+              <CardTitle className={styles.cardTitle}>{stats.column}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-2">
+              <div className={styles.cardGrid}>
                 <div>Type: {stats.type}</div>
                 <div>Unique Values: {stats.uniqueCount}</div>
                 <div>Missing Values: {stats.missingCount}</div>
@@ -394,27 +372,48 @@ const DataAnalysis: React.FC<DataAnalysisProps> = ({ data }) => {
     )
   }
 
-  return (
-    <div className="w-full max-w-4xl mt-8">
-      <h2 className="text-xl font-bold mb-4">Data Analysis</h2>
-      <Select
-        value={analysisType}
-        onValueChange={(value) => setAnalysisType(value as AnalysisType)}
-      >
-        <SelectTrigger className="w-[280px] mb-4">
-          <SelectValue placeholder="Select analysis type" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="descriptive">Descriptive Analysis</SelectItem>
-          <SelectItem value="inferential">Inferential Analysis</SelectItem>
-          <SelectItem value="diagnostic">Diagnostic Analysis</SelectItem>
-          <SelectItem value="predictive">Predictive Analysis</SelectItem>
-          <SelectItem value="prescriptive">Prescriptive Analysis</SelectItem>
-          <SelectItem value="exploratory">Exploratory Data Analysis</SelectItem>
-        </SelectContent>
-      </Select>
+  const performAnalysis = () => {
+    switch (analysisType) {
+      case "descriptive":
+        return descriptiveAnalysis(data)
+      case "inferential":
+        return inferentialAnalysis(data)
+      case "diagnostic":
+        return diagnosticAnalysis(data)
+      case "predictive":
+        return predictiveAnalysis(data)
+      case "prescriptive":
+        return prescriptiveAnalysis(data)
+      case "exploratory":
+        return exploratoryAnalysis(data)
+      default:
+        return null
+    }
+  }
 
-      <div className="mt-4">
+  return (
+    <div className={styles.container}>
+      <h2 className={styles.title}>Data Analysis</h2>
+      <div className={styles.selectContainer}>
+        <Select
+          value={analysisType}
+          onValueChange={(value) => setAnalysisType(value as AnalysisType)}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select analysis type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="descriptive">Descriptive Analysis</SelectItem>
+            <SelectItem value="inferential">Inferential Analysis</SelectItem>
+            <SelectItem value="diagnostic">Diagnostic Analysis</SelectItem>
+            <SelectItem value="predictive">Predictive Analysis</SelectItem>
+            <SelectItem value="prescriptive">Prescriptive Analysis</SelectItem>
+            <SelectItem value="exploratory">Exploratory Data Analysis</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className={styles.analysisContainer}>
         {performAnalysis()}
       </div>
     </div>

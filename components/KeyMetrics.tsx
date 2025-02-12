@@ -1,4 +1,5 @@
 import React from "react"
+import styles from "./styles/KeyMetrics.module.css"
 
 interface KeyMetricsProps {
   totalSales: number
@@ -9,16 +10,16 @@ interface KeyMetricsProps {
 const KeyMetrics: React.FC<KeyMetricsProps> = ({ totalSales, averageSalesPerDay, recommendations }) => {
   console.log("KeyMetrics Props:", { totalSales, averageSalesPerDay, recommendations })
   return (
-    <div className="w-full max-w-4xl mt-8">
-      <h2 className="text-xl font-bold mb-4">Key Metrics</h2>
-      <div className="mb-4">
-        <p>Total Sales: {totalSales}</p>
-        <p>Average Sales Per Day: {averageSalesPerDay}</p>
+    <div className={styles.container}>
+      <h2 className={styles.title}>Key Metrics</h2>
+      <div className={styles.metricsGroup}>
+        <p className={styles.metricValue}>Total Sales: {totalSales}</p>
+        <p className={styles.metricValue}>Average Sales Per Day: {averageSalesPerDay}</p>
       </div>
-      <h3 className="text-lg font-bold mb-2">Recommendations</h3>
-      <ul className="list-disc list-inside">
+      <h3 className={styles.subtitle}>Recommendations</h3>
+      <ul className={styles.recommendationsList}>
         {recommendations.map((rec, index) => (
-          <li key={index}>{rec}</li>
+          <li key={index} className={styles.recommendationItem}>{rec}</li>
         ))}
       </ul>
     </div>

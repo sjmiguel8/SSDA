@@ -1,6 +1,7 @@
 import React from "react"
 import { Button } from "@/components/ui/button"
 import { CSVLink } from "react-csv"
+import styles from "./styles/ProcessedDataTable.module.css"
 
 interface ProcessedDataTableProps {
   data: any[]
@@ -11,22 +12,22 @@ const ProcessedDataTable: React.FC<ProcessedDataTableProps> = ({ data }) => {
   const headers = data.length > 0 ? Object.keys(data[0]) : []
 
   return (
-    <div className="w-full max-w-4xl mt-8">
-      <table className="min-w-full divide-y divide-gray-200">
+    <div className={styles.container}>
+      <table className={styles.table}>
         <thead>
           <tr>
             {headers.map((header) => (
-              <th key={header} className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th key={header} className={styles.tableHeader}>
                 {header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody>
           {data.map((row, index) => (
             <tr key={index}>
               {headers.map((header) => (
-                <td key={header} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td key={header} className={styles.tableCell}>
                   {row[header]}
                 </td>
               ))}
@@ -34,7 +35,7 @@ const ProcessedDataTable: React.FC<ProcessedDataTableProps> = ({ data }) => {
           ))}
         </tbody>
       </table>
-      <div className="mt-4">
+      <div className={styles.downloadButton}>
         <CSVLink data={data} headers={headers} filename="processed_data.csv">
           <Button>Download CSV</Button>
         </CSVLink>
