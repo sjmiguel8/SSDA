@@ -7,6 +7,7 @@ import Papa from "papaparse"
 import { processData } from "@/lib/dataProcessing"
 import ProcessedDataTable from "@/components/ProcessedDataTable"
 import KeyMetrics from "@/components/KeyMetrics"
+import DataAnalysis from "@/components/DataAnalysis"
 import { calculateTotalSales, calculateAverageSales, generateRecommendations } from "@/lib/dataProcessing"
 
 export default function FileUpload() {
@@ -53,10 +54,11 @@ export default function FileUpload() {
         </Button>
       </form>
       {data.length > 0 && (
-        <>
+        <div className="space-y-8">
           <ProcessedDataTable data={data} />
           <KeyMetrics totalSales={totalSales} averageSalesPerDay={averageSalesPerDay} recommendations={recommendations} />
-        </>
+          <DataAnalysis data={data} />
+        </div>
       )}
     </div>
   )
