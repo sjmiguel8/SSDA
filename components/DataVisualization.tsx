@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getProductSales, generateRecommendations } from "@/lib/dataProcessing"
+import "/components/styles/ProcessedDataTable.module.css"
 
 interface SalesData {
   date: string
