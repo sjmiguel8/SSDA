@@ -54,10 +54,14 @@ export default function FileUpload() {
         </Button>
       </form>
       {data.length > 0 && (
-        <div className="space-y-8">
-          <ProcessedDataTable data={data} />
-          <KeyMetrics totalSales={totalSales} averageSalesPerDay={averageSalesPerDay} recommendations={recommendations} />
-          <DataAnalysis data={data} />
+        <div className="grid grid-cols-2 gap-8">
+          <div>
+            <ProcessedDataTable data={data} />
+            <KeyMetrics totalSales={totalSales} averageSalesPerDay={averageSalesPerDay} recommendations={recommendations} />
+          </div>
+          <div className="sticky top-0">
+            <DataAnalysis data={data} />
+          </div>
         </div>
       )}
     </div>
